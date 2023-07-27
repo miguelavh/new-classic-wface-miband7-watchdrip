@@ -138,7 +138,7 @@ for (let i = 0; i < 4; i++) {
 function updateTime() {
     if (typeof time !== 'undefined') 
 	{
-		watchdrip.checkUpdates();
+		//watchdrip.checkUpdates();
     }
 }
 

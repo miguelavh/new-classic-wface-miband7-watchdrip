@@ -1,4 +1,4 @@
- # Classic Watchface for Watchdrip for Xiaomi miband7
+ # New Classic Watchface for Watchdrip for Xiaomi miband7
  <p align="center">
  <img src="https://github.com/miguelavh/classic-watchface-miband7-watchdrip/blob/1a4b17c32148e22978c9362c96c6b421b363882a/assets/band7/images/preview.gif" alt="Watchface preview"/>
  </p>

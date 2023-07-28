@@ -3,7 +3,7 @@ import {Graph} from "./graph";
 /*
 typeof DebugText
 */
-let debug = null;
+//let debug = null;
 export class PolylineGraph extends Graph {
     constructor(x, y, width, height) {
         super(x, y, width, height);

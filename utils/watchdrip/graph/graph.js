@@ -2,7 +2,7 @@ import {getGlobal} from "../../../shared/global";
 /*
 typeof DebugText
 */
-let debug = null;
+//let debug = null;
 export class Graph {
     constructor(x, y, width, height) {
         this.x = x;
@@ -14,7 +14,7 @@ export class Graph {
         this.widgets = [];
         this.globalNS = getGlobal();
         this.visibility = true;
-        debug = this.globalNS.debug;
+        //debug = this.globalNS.debug;
     }
 
     setVisibility(visibility){
@@ -31,14 +31,14 @@ export class Graph {
 
     draw() {
         if (typeof this.lines === 'undefined') {
-            debug.log("No data");
+            //debug.log("No data");
             return;
         }
 
         this.clear();
 
         if (typeof this.viewport === 'undefined') {
-            debug.log("viewport not defined");
+            //debug.log("viewport not defined");
             return;
         }
 

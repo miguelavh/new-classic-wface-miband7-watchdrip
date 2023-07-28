@@ -1,4 +1,4 @@
-import {DebugText} from "../../shared/debug";
+//import {DebugText} from "../../shared/debug";
 import {Watchdrip} from "../../utils/watchdrip/watchdrip";
 import {WatchdripData} from "../../utils/watchdrip/watchdrip-data";
 import {getGlobal} from "../../shared/global";
@@ -22,24 +22,82 @@ import {
     DIGITAL_TIME_AOD_V,
     IMG_LOADING_PROGRESS,
     IMG_STATUS_BT_DISCONNECTED,
+    XDRIP_TEXT1,
+    XDRIP_TEXT2,
+    // Edit masks
+    EDIT_MASK_70,
+    EDIT_MASK_100,
+    EDIT_GROUP_XDRIP,
     CUSTOM_WIDGETS,
     // Default edit group styles
+    EDIT_GROUP_DEFAULTS,
     EDIT_GROUP_W_DEFAULTS,
+    EDIT_DEFAULT_IMG,
+    EDIT_DEFAULT_ARC_PROGRESS,
+    EDIT_DEFAULT_TEXT_IMG,
+    // Top Edit Group
+    EDIT_TOP_GROUP,
+    EDIT_TOP_IMG,
+    EDIT_TOP_ARC_PROGRESS,
+    EDIT_TOP_TEXT_IMG,
+	
 	EDIT_LARGE_GROUP,
-    GRAPH_SETTINGS
+    EDIT_LARGE_IMG,
+    EDIT_LARGE_ARC_PROGRESS,
+    EDIT_LARGE_TEXT_IMG,
+    // Bottom Edit Group
+    EDIT_BOTTOM_GROUP,
+    EDIT_BOTTOM_IMG,
+    EDIT_BOTTOM_ARC_PROGRESS,
+    EDIT_BOTTOM_TEXT_IMG,
+    // Editable Widgets specific styles
+    EDIT_HEART_IMG,
+    EDIT_HEART_IMG_LEVEL,
+    EDIT_HEART_TEXT_IMG,
+    EDIT_STEP_IMG,
+    EDIT_STEP_ARC_PROGRESS,
+    EDIT_STEP_TEXT_IMG,
+    EDIT_DISTANCE_IMG,
+    EDIT_DISTANCE_TEXT_IMG,
+    EDIT_WEATHER_CONDITION_IMG_LEVEL,
+    EDIT_WEATHER_CURRENT_TEXT_IMG,
+    EDIT_PAI_IMG,
+    EDIT_PAI_ARC_PROGRESS,
+    EDIT_PAI_TEXT_IMG,
+    EDIT_UVI_IMG,
+    EDIT_UVI_ARC_PROGRESS,
+    EDIT_UVI_TEXT_IMG,
+    EDIT_ALTIMETER_IMG,
+    EDIT_ALTIMETER_TEXT_IMG,
+    EDIT_MOON_IMG_LEVEL,
+    EDIT_CAL_IMG,
+    EDIT_CAL_ARC_PROGRESS,
+    EDIT_CAL_TEXT_IMG,
+    EDIT_AQI_IMG,
+    EDIT_AQI_TEXT_IMG,
+    EDIT_SPO2_IMG,
+    EDIT_SPO2_TEXT_IMG,
+    EDIT_STAND_IMG,
+    EDIT_STAND_ARC_PROGRESS,
+    EDIT_STAND_TEXT_IMG,
+    EDIT_HUMIDITY_IMG,
+    EDIT_HUMIDITY_ARC_PROGRESS,
+    EDIT_HUMIDITY_TEXT_IMG,
+    GRAPH_SETTINGS, 
+	EDIT_GROUP_XDRIP2
 } from "./styles";
 //import {BG_IMG, BG_FILL_RECT} from "../../utils/config/styles_global";
 import {Colors, PROGRESS_ANGLE_INC, PROGRESS_UPDATE_INTERVAL_MS, TEST_DATA} from "../../utils/config/constants";
 import {DEVICE_HEIGHT, DEVICE_WIDTH} from "../../utils/config/device";
 
 let bgValNoDataTextWidget, bgValTextImgWidget,bgValTextImgLowWidget,bgValTextImgHighWidget, bgValTimeTextWidget, bgDeltaTextWidget, bgTrendImageWidget, bgStaleLine, 
-    progress,editGroupLarge;
+    progress,editGroupLarge;// editGroupxDrip1,editGroupxDrip2, xDripText1, xDripText2;
 
 let batterySensor,time;
 
 let globalNS, progressTimer, progressAngle, screenType;
 
-let debug, watchdrip;
+let watchdrip,debug;
 
 export const logger = Logger.getLogger("timer-page");
 
@@ -138,6 +196,15 @@ for (let i = 0; i < 4; i++) {
 function updateTime() {
     if (typeof time !== 'undefined') 
 	{
+		/*const brillo = hmSetting.getBrightness();
+		if(time.hour>=8 && time.hour<22 && brillo!==100)
+		{
+			const result = hmSetting.setBrightness(100);	
+		}
+		else if((time.hour>=22 || time.hour<8) && brillo!==0)
+		{
+			const result = hmSetting.setBrightness(0);
+		}*/	
 		//watchdrip.checkUpdates();
     }
 }
@@ -149,12 +216,12 @@ function setBrightness(c, b) {
     return Math.floor(red*b)*256*256 + Math.floor(green*b)*256 + Math.floor(blue*b)
 }
 
-function initDebug() {
+/*function initDebug() {
     globalNS.debug = new DebugText();
     debug = globalNS.debug;
 	debug.setEnabled(false);
     debug.setLines(12);
-}
+}*/
 
 function startLoader() {
     progress.setProperty(hmUI.prop.VISIBLE, true);
@@ -184,8 +251,124 @@ function mergeStyles(styleObj1, styleObj2, styleObj3 = {}) {
     return Object.assign({}, styleObj1, styleObj2, styleObj3);
 }
 
+/*function updatexDripGroupWidgets(textWidget, editType, watchdripData) {
+    if (editType === CUSTOM_WIDGETS.NONE){
+        return;
+    }
+    const treatmentObj = watchdripData.getTreatment();
+    const externalStatusObj = watchdripData.getExternal();
+    let text = "";
+    switch (editType) {
+        case CUSTOM_WIDGETS.XDRIP_PREDICT_IOB:
+            text= treatmentObj.getPredictIOB();
+            break;
+        case CUSTOM_WIDGETS.XDRIP_PREDICT_BWP:
+            text = treatmentObj.getPredictBWP();
+            break;
+        case CUSTOM_WIDGETS.XDRIP_PREDICT_IOB_BWP:
+            text = treatmentObj.getPredictIOB() + " " + treatmentObj.getPredictBWP();
+            break;
+        case CUSTOM_WIDGETS.XDRIP_TREATMENT:
+            text = treatmentObj.getTreatments();
+            break;
+        // default xDrip data
+        case CUSTOM_WIDGETS.XDRIP_TREATMENT_AND_TIME:
+            let treatmentsText = treatmentObj.getTreatments();
+            if (treatmentsText !== "") {
+                text = treatmentsText + " " + watchdripData.getTimeAgo(treatmentObj.time);
+            }
+            break;
+        case CUSTOM_WIDGETS.XDRIP_TREATMENT_TIME:
+            let treatmentsText3 = treatmentObj.getTreatments();
+            if (treatmentsText3 !== "") {
+                text = watchdripData.getTimeAgo(treatmentObj.time);
+            }
+            break;
+        case CUSTOM_WIDGETS.AAPS:
+            text = externalStatusObj.getStatusLine();
+            break;
+        case CUSTOM_WIDGETS.AAPS_AND_TIME:
+            text = externalStatusObj.getStatusLine() + " " +  watchdripData.getTimeAgo(externalStatusObj.getTime());
+            break;
+        case CUSTOM_WIDGETS.AAPS_TIME:
+            text = watchdripData.getTimeAgo(externalStatusObj.getTime());
+            break;
+    }
+    textWidget.setProperty(hmUI.prop.TEXT, text);
+}*/
+
 WatchFace({
     // Init View
+
+    drawWidget(imgStyle, arcProgressStyle, textImgStyle, editType){
+        switch (editType) {
+            case hmUI.edit_type.HEART:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_HEART_IMG));
+                hmUI.createWidget(hmUI.widget.IMG_LEVEL, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_HEART_IMG_LEVEL));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_HEART_TEXT_IMG));
+                break;
+            case hmUI.edit_type.STEP:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_STEP_IMG));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.left, arcProgressStyle.left, EDIT_STEP_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.right, arcProgressStyle.right, EDIT_STEP_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_STEP_TEXT_IMG));
+                break;
+            case hmUI.edit_type.WEATHER:
+                hmUI.createWidget(hmUI.widget.IMG_LEVEL, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_WEATHER_CONDITION_IMG_LEVEL));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_WEATHER_CURRENT_TEXT_IMG));
+                break;
+            case hmUI.edit_type.DISTANCE:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_DISTANCE_IMG));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_DISTANCE_TEXT_IMG));
+                break; 
+            case hmUI.edit_type.ALTIMETER:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_ALTIMETER_IMG));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_ALTIMETER_TEXT_IMG));
+                break;
+            case hmUI.edit_type.UVI:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_UVI_IMG));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.left, arcProgressStyle.left, EDIT_UVI_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.right, arcProgressStyle.right, EDIT_UVI_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_UVI_TEXT_IMG));
+                break;
+            case hmUI.edit_type.PAI:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_PAI_IMG));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.left, arcProgressStyle.left, EDIT_PAI_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.right, arcProgressStyle.right, EDIT_PAI_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_PAI_TEXT_IMG));
+                break;
+            case hmUI.edit_type.MOON:
+                hmUI.createWidget(hmUI.widget.IMG_LEVEL, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_MOON_IMG_LEVEL));
+                break;
+            case hmUI.edit_type.AQI:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_AQI_IMG));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_AQI_TEXT_IMG));
+                break; 
+            case hmUI.edit_type.SPO2:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_SPO2_IMG));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_SPO2_TEXT_IMG));
+                break;
+            case hmUI.edit_type.CAL:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_CAL_IMG));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.left, arcProgressStyle.left, EDIT_CAL_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.right, arcProgressStyle.right, EDIT_CAL_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_CAL_TEXT_IMG));
+                break;
+            case hmUI.edit_type.STAND:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_STAND_IMG));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.left, arcProgressStyle.left, EDIT_STAND_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.right, arcProgressStyle.right, EDIT_STAND_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_STAND_TEXT_IMG));
+                break;
+            case hmUI.edit_type.HUMIDITY:
+                hmUI.createWidget(hmUI.widget.IMG, mergeStyles(EDIT_DEFAULT_IMG, imgStyle, EDIT_HUMIDITY_IMG));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.left, arcProgressStyle.left, EDIT_HUMIDITY_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.ARC_PROGRESS, mergeStyles(EDIT_DEFAULT_ARC_PROGRESS.right, arcProgressStyle.right, EDIT_HUMIDITY_ARC_PROGRESS));
+                hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(EDIT_DEFAULT_TEXT_IMG, textImgStyle, EDIT_HUMIDITY_TEXT_IMG));
+                break;
+        }
+    },
+	
     initView() {
         screenType = hmSetting.getScreenType();
 
@@ -253,6 +436,17 @@ WatchFace({
         const dateline = DH/2+T_HEIGHT+T_SPACE/2+12;
 		
         editGroupLarge = hmUI.createWidget(hmUI.widget.WATCHFACE_EDIT_GROUP, mergeStyles(EDIT_GROUP_W_DEFAULTS, EDIT_LARGE_GROUP));
+        this.drawWidget(EDIT_LARGE_IMG, EDIT_LARGE_ARC_PROGRESS, EDIT_LARGE_TEXT_IMG, editGroupLarge.getProperty(hmUI.prop.CURRENT_TYPE));
+
+        hmUI.createWidget(hmUI.widget.IMG, { 
+            x: 73,
+            y: -10,
+            src: IMG+'bright.png',
+            show_level: hmUI.show_level.ONLY_NORMAL
+        }).addEventListener(hmUI.event.CLICK_UP, function (info) {
+			hmApp.startApp({url: "Settings_lightAdjustScreen", native: true})
+        });
+
 		
         let largeGroupType = editGroupLarge.getProperty(hmUI.prop.CURRENT_TYPE);
 		
@@ -285,6 +479,15 @@ WatchFace({
 		time = hmSensor.createSensor(hmSensor.id.TIME);
         time.addEventListener(time.event.MINUTEEND, updateTime);
 		
+        // xdrip formatting edit groups
+        //editGroupxDrip1 = hmUI.createWidget(hmUI.widget.WATCHFACE_EDIT_GROUP, mergeStyles(EDIT_GROUP_W_DEFAULTS, EDIT_GROUP_XDRIP));
+        //editGroupxDrip2 = hmUI.createWidget(hmUI.widget.WATCHFACE_EDIT_GROUP, mergeStyles(EDIT_GROUP_W_DEFAULTS,EDIT_GROUP_XDRIP, EDIT_GROUP_XDRIP2));
+        // END editable components init
+
+        // From modified xDrip ExternalStatusService.getLastStatusLine()
+        //xDripText1 = hmUI.createWidget(hmUI.widget.TEXT, XDRIP_TEXT1);
+        // From modified xDrip ExternalStatusService.getLastStatusLineTime()
+        //xDripText2 = hmUI.createWidget(hmUI.widget.TEXT, XDRIP_TEXT2);
         // Weekday
         let weekW = hmUI.createWidget(hmUI.widget.IMG_WEEK, {
             x: 62,
@@ -364,7 +567,7 @@ WatchFace({
         for (let i of PROGRESSES.keys()) {
             makeProgress(i, EDIT_TYPES.indexOf(groups[i].getProperty(hmUI.prop.CURRENT_TYPE)))
         }
-        for (let i of PROGRESSES.keys()) {
+        /*for (let i of PROGRESSES.keys()) {
             if (groups[i].getProperty(hmUI.prop.CURRENT_TYPE) === hmUI.data_type.PAI_WEEKLY) {
                 hmUI.createWidget(hmUI.widget.IMG, {
                     x: [0, DW / 2][i % 2],
@@ -384,7 +587,7 @@ WatchFace({
                     type: groups[i].getProperty(hmUI.prop.CURRENT_TYPE)
                 })
             }
-        }
+        }*/
 
         // Center widgets
         function makeWidget(cType, current_y) {
@@ -405,13 +608,13 @@ WatchFace({
                 type: cType,
                 show_level: hmUI.show_level.ONLY_NORMAL
             })
-            hmUI.createWidget(hmUI.widget.IMG_CLICK, {
+            /*hmUI.createWidget(hmUI.widget.IMG_CLICK, {
                 x: (DW-IL_SIZE)/2,
                 y: current_y,
                 w: IL_SIZE,
                 h: IL_SIZE+I_SPACE_V+20,
                 type: cType
-            })
+            })*/
         }
         function makeWeather(current_y) {
             // Weather
@@ -436,14 +639,21 @@ WatchFace({
                 unit_tc: wDegree,
                 type: hmUI.data_type.WEATHER_CURRENT,
                 show_level: hmUI.show_level.ONLY_NORMAL
-            })
-            hmUI.createWidget(hmUI.widget.IMG_CLICK, {
+            })/*.addEventListener(hmUI.event.CLICK_UP, function (info) {
+					hmApp.startApp({url: "Settings_lightAdjustScreen", native: true})
+					//hmApp.startApp({url: "Settings_displayBrightScreen", native: true})
+					//hmApp.startApp({ appid: 33904, url: 'page/MainScreen', native: false })
+                    //hmApp.startApp({ url: 'BrightnessScreen', native: true })
+					//hmApp.gotoPage({ url: 'brigthness', param: '...' })
+					//hmApp.gotoPage({ appid: 1, url: 'Settings_lightAdjustScreen', native: true})
+                });*/
+            /*hmUI.createWidget(hmUI.widget.IMG_CLICK, {
                 x: (DW-W_SIZE)/2,
                 y: current_y,
                 w: W_SIZE,
                 h: W_SIZE+I_SPACE_V+20,
                 type: hmUI.data_type.WEATHER
-            })
+            })*/
         }
         let cTypes = [
             centerGroup1.getProperty(hmUI.prop.CURRENT_TYPE),
@@ -458,6 +668,30 @@ WatchFace({
         }
 
         // Status
+        /*hmUI.createWidget(hmUI.widget.IMG_STATUS, { // bluetooth
+            x: 2,
+            y: DH/2-S_I_SIZE-S_I_SPACE/2,
+            type: hmUI.system_status.DISCONNECT,
+            src: IMG+'bt0.png',
+            show_level: hmUI.show_level.ONLY_NORMAL
+        })*/
+        /*hmUI.createWidget(hmUI.widget.IMG_STATUS, { // dnd
+            x: 2,
+            y: DH/2+S_I_SPACE/2,
+            type: hmUI.system_status.DISTURB,
+            src: IMG+'dnd1.png',
+            show_level: hmUI.show_level.ONLY_NORMAL
+        })*/
+		
+        hmUI.createWidget(hmUI.widget.IMG, { 
+            x: 73,
+            y: -10,
+            src: IMG+'bright.png',
+            show_level: hmUI.show_level.ONLY_NORMAL
+        }).addEventListener(hmUI.event.CLICK_UP, function (info) {
+			hmApp.startApp({url: "Settings_lightAdjustScreen", native: true})
+        });
+
         if (screenType === hmSetting.screen_type.AOD) {
             bgValTextImgWidget = hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(BG_VALUE_TEXT_IMG, BG_VALUE_TEXT_IMG_AOD));
 			bgValTextImgLowWidget = hmUI.createWidget(hmUI.widget.TEXT_IMG, mergeStyles(BG_VALUE_TEXT_IMG_LOW, BG_VALUE_TEXT_IMG_LOW_AOD));
@@ -533,6 +767,9 @@ WatchFace({
         bgDeltaTextWidget.setProperty(hmUI.prop.TEXT, bgObj.delta);
         bgTrendImageWidget.setProperty(hmUI.prop.SRC, bgObj.getArrowResource());
 
+        //updatexDripGroupWidgets(xDripText1,editGroupxDrip1.getProperty(hmUI.prop.CURRENT_TYPE), watchdripData);
+        //updatexDripGroupWidgets(xDripText2,editGroupxDrip2.getProperty(hmUI.prop.CURRENT_TYPE), watchdripData);
+
         if (TEST_DATA) {
             bgStatusLow.setProperty(hmUI.prop.VISIBLE, true);
             bgStatusOk.setProperty(hmUI.prop.VISIBLE, true);
@@ -550,6 +787,9 @@ WatchFace({
         bgValTimeTextWidget.setProperty(hmUI.prop.TEXT, watchdripData.getTimeAgo(bgObj.time));
 
         bgStaleLine.setProperty(hmUI.prop.VISIBLE, watchdripData.isBgStale());
+
+        //updatexDripGroupWidgets(xDripText1,editGroupxDrip1.getProperty(hmUI.prop.CURRENT_TYPE), watchdripData);
+        //updatexDripGroupWidgets(xDripText2,editGroupxDrip2.getProperty(hmUI.prop.CURRENT_TYPE), watchdripData);
     },
 
     onInit() {
@@ -560,8 +800,8 @@ WatchFace({
                 try{
                     logger.log("wf on build invoke");
                     globalNS = getGlobal();
-                    initDebug();
-                    debug.log("build");
+                    //initDebug();
+                    //debug.log("build");
                     this.initView();
                     globalNS.watchdrip = new Watchdrip();
                     watchdrip = globalNS.watchdrip;
@@ -595,16 +835,26 @@ WatchFace({
                         h: GRAPH_SETTINGS.h,
                         color: Colors.accent,
                     }
+                    // hmUI.createWidget(hmUI.widget.FILL_RECT, RECT);
                     watchdrip.createGraph(GRAPH_SETTINGS.x,GRAPH_SETTINGS.y,GRAPH_SETTINGS.w,GRAPH_SETTINGS.h, lineStyles);
 					if (largeGroupType === CUSTOM_WIDGETS.NONE) 
 					{
                         watchdrip.graph.setVisibility(false);
                     }
+
+                    /*if (editGroupxDrip1.getProperty(hmUI.prop.CURRENT_TYPE) === CUSTOM_WIDGETS.NONE){
+                        xDripText1.setProperty(hmUI.prop.VISIBLE, false);
+                    }
+
+                    if (editGroupxDrip2.getProperty(hmUI.prop.CURRENT_TYPE) === CUSTOM_WIDGETS.NONE){
+                        xDripText2.setProperty(hmUI.prop.VISIBLE, false);
+                    }*/
+
                     watchdrip.start();
                 }
                 catch (e) {
-                    debug.log('LifeCycle Error: ', e)
-                    e && e.stack && e.stack.split(/\n/).forEach((i) => debug.log('error stack', i))
+                    /*debug.log('LifeCycle Error: ', e)
+                    e && e.stack && e.stack.split(/\n/).forEach((i) => debug.log('error stack', i))*/
                 }
     },
        onDestroy() {
@@ -614,10 +864,10 @@ WatchFace({
        },
 
        onShow() {
-           debug.log("onShow");
+           //debug.log("onShow");
        },
 
        onHide() {
-           debug.log("onHide");
+           //debug.log("onHide");
        },
 });

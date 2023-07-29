@@ -476,8 +476,8 @@ WatchFace({
 		
 
         const btDisconnected = hmUI.createWidget(hmUI.widget.IMG_STATUS, IMG_STATUS_BT_DISCONNECTED);
-		time = hmSensor.createSensor(hmSensor.id.TIME);
-        time.addEventListener(time.event.MINUTEEND, updateTime);
+		//time = hmSensor.createSensor(hmSensor.id.TIME);
+        //time.addEventListener(time.event.MINUTEEND, updateTime);
 		
         // xdrip formatting edit groups
         //editGroupxDrip1 = hmUI.createWidget(hmUI.widget.WATCHFACE_EDIT_GROUP, mergeStyles(EDIT_GROUP_W_DEFAULTS, EDIT_GROUP_XDRIP));
@@ -567,7 +567,7 @@ WatchFace({
         for (let i of PROGRESSES.keys()) {
             makeProgress(i, EDIT_TYPES.indexOf(groups[i].getProperty(hmUI.prop.CURRENT_TYPE)))
         }
-        /*for (let i of PROGRESSES.keys()) {
+        for (let i of PROGRESSES.keys()) {
             if (groups[i].getProperty(hmUI.prop.CURRENT_TYPE) === hmUI.data_type.PAI_WEEKLY) {
                 hmUI.createWidget(hmUI.widget.IMG, {
                     x: [0, DW / 2][i % 2],
@@ -587,7 +587,7 @@ WatchFace({
                     type: groups[i].getProperty(hmUI.prop.CURRENT_TYPE)
                 })
             }
-        }*/
+        }
 
         // Center widgets
         function makeWidget(cType, current_y) {
@@ -608,13 +608,13 @@ WatchFace({
                 type: cType,
                 show_level: hmUI.show_level.ONLY_NORMAL
             })
-            /*hmUI.createWidget(hmUI.widget.IMG_CLICK, {
+            hmUI.createWidget(hmUI.widget.IMG_CLICK, {
                 x: (DW-IL_SIZE)/2,
                 y: current_y,
                 w: IL_SIZE,
                 h: IL_SIZE+I_SPACE_V+20,
                 type: cType
-            })*/
+            })
         }
         function makeWeather(current_y) {
             // Weather
@@ -647,13 +647,13 @@ WatchFace({
 					//hmApp.gotoPage({ url: 'brigthness', param: '...' })
 					//hmApp.gotoPage({ appid: 1, url: 'Settings_lightAdjustScreen', native: true})
                 });*/
-            /*hmUI.createWidget(hmUI.widget.IMG_CLICK, {
+            hmUI.createWidget(hmUI.widget.IMG_CLICK, {
                 x: (DW-W_SIZE)/2,
                 y: current_y,
                 w: W_SIZE,
                 h: W_SIZE+I_SPACE_V+20,
                 type: hmUI.data_type.WEATHER
-            })*/
+            })
         }
         let cTypes = [
             centerGroup1.getProperty(hmUI.prop.CURRENT_TYPE),
